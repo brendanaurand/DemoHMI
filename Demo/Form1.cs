@@ -2,7 +2,8 @@ namespace Demo
 {
     public partial class Form1 : Form
     {
-        public PLCSetting CurrentPLCSettings;
+        public PLCSetting CurrentPLCSettings { get; set; } = new PLCSetting();
+
         public Form1()
         {
             InitializeComponent();
@@ -13,33 +14,66 @@ namespace Demo
             InitPLC();
         }
 
-        private void InitPLC()
+        private async void PlcTriggerValueChanged(object sender, Gentex.IO.AllenBradley.SymbolEventArgs e)
         {
             try
             {
-                CurrentPLCSettings = new PLCSetting()
+                var readTrig = Convert.ToBoolean(e.Value);
+                if (readTrig)
                 {
-                    // IEC206 Marking Laser  PLC
-                    IPAddress = "10.112.116.132",
-                    //PartNumberTag = "hmi_CurrentPartNumber",
-                    //HeartBeatTag = "_GFLC_HeartBeat"
-                };
-                // create new plc client
-                var (success, message) = PLCHelper.InitializePLCClient(CurrentPLCSettings);
-                if (!success)
-                {
-                    MessageBox.Show(message);
-                    return;
+                    await Task.Run(() => Console.WriteLine($"PLC Trigger Changed at {DateTime.Now.ToString()}"));
                 }
-
-                InitPolling();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                Console.WriteLine($"error in PlcTriggerValueChanged: {ex.Message} ");
             }
         }
 
+        private async void PlcPartNumberValueChanged(object sender, Gentex.IO.AllenBradley.SymbolEventArgs e)
+        {
+            try
+            {
+                await Task.Run(() => Console.WriteLine($"Part Number Changed: {e.Value}"));
+                if (labelPartNumber.InvokeRequired)
+                {
+                    // Use Invoke to call the method on the UI thread
+                    labelPartNumber.Invoke(new Action(() => labelPartNumber.Text = e.Value.ToString()));
+                }
+                else
+                {
+                    // If already on the UI thread, update the label directly
+                    labelPartNumber.Text = e.Value.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($" Error PlcPartNumberValueChanged: {ex.Message}");
+            }
+        }
+
+        private async void PlcHeartBeatValueChanged(object sender, Gentex.IO.AllenBradley.SymbolEventArgs e)
+        {
+            try
+            {
+                await Task.Run(() => Console.WriteLine($"HeartBeat Changed: {e.Value}"));
+
+                if (btnHeartBeat.InvokeRequired)
+                {
+                    // Use Invoke to call the method on the UI thread
+                    btnHeartBeat.Invoke(new Action(() => btnHeartBeat.Text = e.Value.ToString()));
+                }
+                else
+                {
+                    // If already on the UI thread, update the label directly
+                    btnHeartBeat.Text = e.Value.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($" Error PlcHeartBeatValueChanged: {ex.Message}");
+            }
+        }
 
         private void InitPolling()
         {
@@ -54,15 +88,15 @@ namespace Demo
                 PLCHelper.PLCClient.ReadTag(CurrentPLCSettings.TriggerTag, true, true);
 
                 //setup PLC tag change event handlers. 
-                PLCHelper.PLCClient.Symbols[CurrentPLCSettings.PartNumberTag].ValueChanged -= plcPartNumberValueChanged;
-                PLCHelper.PLCClient.Symbols[CurrentPLCSettings.PartNumberTag].ValueChanged += plcPartNumberValueChanged;
-                
-                PLCHelper.PLCClient.Symbols[CurrentPLCSettings.HeartBeatTag].ValueChanged -= plcHeartBeatValueChanged;
-                PLCHelper.PLCClient.Symbols[CurrentPLCSettings.HeartBeatTag].ValueChanged += plcHeartBeatValueChanged;
+                PLCHelper.PLCClient.Symbols[CurrentPLCSettings.PartNumberTag].ValueChanged -= plcPartNumberValueChanged!;
+                PLCHelper.PLCClient.Symbols[CurrentPLCSettings.PartNumberTag].ValueChanged += plcPartNumberValueChanged!;
 
-                PLCHelper.PLCClient.Symbols[CurrentPLCSettings.TriggerTag].ValueChanged -= plcTriggerValueChanged;
-                PLCHelper.PLCClient.Symbols[CurrentPLCSettings.TriggerTag].ValueChanged += plcTriggerValueChanged;
-            
+                PLCHelper.PLCClient.Symbols[CurrentPLCSettings.HeartBeatTag].ValueChanged -= plcHeartBeatValueChanged!;
+                PLCHelper.PLCClient.Symbols[CurrentPLCSettings.HeartBeatTag].ValueChanged += plcHeartBeatValueChanged!;
+
+                PLCHelper.PLCClient.Symbols[CurrentPLCSettings.TriggerTag].ValueChanged -= plcTriggerValueChanged!;
+                PLCHelper.PLCClient.Symbols[CurrentPLCSettings.TriggerTag].ValueChanged += plcTriggerValueChanged!;
+
             }
             catch (Exception ex)
             {
@@ -82,7 +116,7 @@ namespace Demo
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"errror in plcTriggerValueChange: {ex.Message} " );
+                Console.WriteLine($"errror in plcTriggerValueChange: {ex.Message} ");
             }
         }
 
@@ -130,6 +164,16 @@ namespace Demo
                 MessageBox.Show($" Error plcHeartBeatValueChanged: {ex.Message}");
             }
         }
+
+        private void btnHeartBeat_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void labelPartNumber_Click(object sender, EventArgs e)
+        {
+
+        }
     }
-            
+
 }

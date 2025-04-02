@@ -19,7 +19,7 @@ namespace Demo
         [Category("Client")]
         [DisplayName("IP Address")]
         [Description("ip address to connect to plc.")]
-        public string IPAddress { get; set; } = "10.113.83.10";
+        public string IPAddress { get; set; } = "";
 
         [Category("Tags")]
         [DisplayName("PartNumber")]
@@ -105,8 +105,6 @@ namespace Demo
             }
         }
 
-        [NotMapped]
-        [Browsable(false)]
         public string PartNumberValue
         {
             get
@@ -120,7 +118,8 @@ namespace Demo
                 if (!PLCHelper.PLCClient.IsReadable(PartNumberTag))
                     throw new Exception($"Failed To Get RetryValue. Tag '{PartNumberTag}' Not Readable");
 
-                return PLCHelper.PLCClient.ReadTag(PartNumberTag, true, false).ToString();
+                var result = PLCHelper.PLCClient.ReadTag(PartNumberTag, true, false);
+                return result?.ToString() ?? string.Empty;
             }
             set
             {

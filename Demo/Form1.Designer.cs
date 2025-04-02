@@ -36,27 +36,30 @@
             // 
             // btnHeartBeat
             // 
-            btnHeartBeat.Location = new Point(75, 87);
+            btnHeartBeat.Location = new Point(66, 65);
+            btnHeartBeat.Margin = new Padding(3, 2, 3, 2);
             btnHeartBeat.Name = "btnHeartBeat";
-            btnHeartBeat.Size = new Size(94, 29);
+            btnHeartBeat.Size = new Size(82, 22);
             btnHeartBeat.TabIndex = 0;
             btnHeartBeat.Text = "HeartBeat";
             btnHeartBeat.UseVisualStyleBackColor = true;
+            btnHeartBeat.Click += btnHeartBeat_Click;
             // 
             // labelPartNumber
             // 
             labelPartNumber.AutoSize = true;
-            labelPartNumber.Location = new Point(513, 153);
+            labelPartNumber.Location = new Point(449, 115);
             labelPartNumber.Name = "labelPartNumber";
-            labelPartNumber.Size = new Size(120, 20);
+            labelPartNumber.Size = new Size(98, 15);
             labelPartNumber.TabIndex = 1;
             labelPartNumber.Text = "Part Number: NA";
+            labelPartNumber.Click += labelPartNumber_Click;
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(640, 360);
+            ClientSize = new Size(560, 270);
             Controls.Add(labelPartNumber);
             Controls.Add(btnHeartBeat);
             Margin = new Padding(2);
